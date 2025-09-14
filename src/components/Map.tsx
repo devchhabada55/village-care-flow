@@ -32,13 +32,7 @@ import {
   Volume2
 } from "lucide-react";
 
-interface MapProps {
-  center?: [number, number];
-  zoom?: number;
-  height?: string;
-  showNearbyServices?: boolean;
-}
-
+// Update the ServiceType interface to include multilingual support
 interface ServiceType {
   id: number;
   type: 'hospital' | 'pharmacy' | 'clinic' | 'doctor';
@@ -64,18 +58,28 @@ interface ServiceType {
   specialization?: string[];
 }
 
+// Update the MapProps interface
+interface MapProps {
+  center?: [number, number];
+  zoom?: number;
+  height?: string;
+  showNearbyServices?: boolean;
+  defaultFilter?: 'all' | 'hospital' | 'pharmacy' | 'doctor' | 'clinic';
+}
+
 const Map: React.FC<MapProps> = ({ 
   center = [30.3752, 76.4141], // Nabha, Punjab coordinates
   zoom = 13,
   height = "400px",
-  showNearbyServices = true 
+  showNearbyServices = true,
+  defaultFilter = 'all'
 }) => {
   const { currentLanguage, t, speak } = useLanguage();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [selectedService, setSelectedService] = useState<ServiceType | null>(null);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [selectedFilter, setSelectedFilter] = useState<string>(defaultFilter);
   const [favorites, setFavorites] = useState<number[]>([]);
 
   // Enhanced mock data for nearby healthcare services
@@ -180,57 +184,27 @@ const Map: React.FC<MapProps> = ({
       const recognition = new (window as any).webkitSpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = currentLanguage === 'pa' ? 'pa-IN' : currentLanguage === 'hi' ? 'hi-IN' : 'en-IN';
-      
-      setIsVoiceActive(true);
-      recognition.start();
-      
+      recognition.lang = currentLanguage === 'pa' ? 'pa-IN' : 
+                        currentLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+
+      recognition.onstart = () => setIsVoiceActive(true);
+      recognition.onend = () => setIsVoiceActive(false);
       recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        handleVoiceCommand(transcript);
-        setIsVoiceActive(false);
+        const command = event.results[0][0].transcript.toLowerCase();
+        // Handle voice commands
+        if (command.includes('doctor') || command.includes('डॉक्टर') || command.includes('ਡਾਕਟਰ')) {
+          setSelectedFilter('doctor');
+          speak(t('Found doctor services near you'));
+        } else if (command.includes('pharmacy') || command.includes('फार्मेसी') || command.includes('ਫਾਰਮੇਸੀ')) {
+          setSelectedFilter('pharmacy');
+          speak(t('Found pharmacy services near you'));
+        } else if (command.includes('hospital') || command.includes('अस्पताल') || command.includes('ਹਸਪਤਾਲ')) {
+          setSelectedFilter('hospital');
+          speak(t('Found hospital services near you'));
+        }
       };
-      
-      recognition.onerror = () => {
-        setIsVoiceActive(false);
-      };
-      
-      recognition.onend = () => {
-        setIsVoiceActive(false);
-      };
-    }
-  };
 
-  const handleVoiceCommand = (command: string) => {
-    const commands = {
-      en: {
-        doctor: ['doctor', 'physician', 'medical'],
-        pharmacy: ['pharmacy', 'medicine', 'drug store'],
-        hospital: ['hospital', 'emergency'],
-        clinic: ['clinic']
-      },
-      hi: {
-        doctor: ['डॉक्टर', 'चिकित्सक', 'वैद्य'],
-        pharmacy: ['दवाखाना', 'फार्मेसी', 'दवा'],
-        hospital: ['अस्पताल', 'हॉस्पिटल'],
-        clinic: ['क्लिनिक']
-      },
-      pa: {
-        doctor: ['ਡਾਕਟਰ', 'ਵੈਦ', 'ਹਕੀਮ'],
-        pharmacy: ['ਦਵਾਈ ਦੀ ਦੁਕਾਨ', 'ਫਾਰਮੇਸੀ'],
-        hospital: ['ਹਸਪਤਾਲ'],
-        clinic: ['ਕਲੀਨਿਕ']
-      }
-    };
-
-    const langCommands = commands[currentLanguage as keyof typeof commands];
-    
-    for (const [type, keywords] of Object.entries(langCommands)) {
-      if (keywords.some(keyword => command.includes(keyword))) {
-        setSelectedFilter(type);
-        speak(t(`Found ${type} services near you`));
-        break;
-      }
+      recognition.start();
     }
   };
 
@@ -306,58 +280,95 @@ const Map: React.FC<MapProps> = ({
     );
   };
 
+
+  // Add service category buttons with icons and multilingual support
+  const ServiceCategories: React.FC = () => {
+    const { t } = useLanguage();
+    
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Button
+          variant="outline"
+          size="lg"
+          className="h-24 flex-col space-y-2 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-red-500/5 group-hover:scale-105 transition-transform" />
+          <Building2 className="h-8 w-8 text-red-500" />
+          <div className="space-y-1">
+            <span className="text-sm font-medium block">{t('Hospitals & Clinics')}</span>
+            <span className="text-xs text-muted-foreground block">🏥 अस्पताल / ਹਸਪਤਾਲ</span>
+          </div>
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg" 
+          className="h-24 flex-col space-y-2 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-500/5 group-hover:scale-105 transition-transform" />
+          <Pill className="h-8 w-8 text-blue-500" />
+          <div className="space-y-1">
+            <span className="text-sm font-medium block">{t('Pharmacies')}</span>
+            <span className="text-xs text-muted-foreground block">💊 फार्मेसी / ਫਾਰਮੇਸੀ</span>
+          </div>
+        </Button>
+
+        <Button
+          variant="outline"
+          size="lg"
+          className="h-24 flex-col space-y-2 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-500/5 group-hover:scale-105 transition-transform" />
+          <Stethoscope className="h-8 w-8 text-purple-500" />
+          <div className="space-y-1">
+            <span className="text-sm font-medium block">{t('Doctors')}</span>
+            <span className="text-xs text-muted-foreground block">👨‍⚕️ डॉक्टर / ਡਾਕਟਰ</span>
+          </div>
+        </Button>
+      </div>
+    );
+  };
+
+  // Add offline caching functionality
+const useOfflineCache = () => {
+  const [offlineData, setOfflineData] = useState<ServiceType[]>([]);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Load cached data from localStorage
+    const cached = localStorage.getItem('healthcareServices');
+    if (cached) {
+      setOfflineData(JSON.parse(cached));
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const updateCache = (services: ServiceType[]) => {
+    localStorage.setItem('healthcareServices', JSON.stringify(services));
+    setOfflineData(services);
+  };
+
+  return {
+    isOffline,
+    offlineData,
+    updateCache
+  };
+};
+
   return (
     <div className="space-y-6">
       {/* Service Category Buttons */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Button
-          variant={selectedFilter === 'hospital' ? 'default' : 'outline'}
-          size="lg"
-          className="h-20 flex-col space-y-2"
-          onClick={() => setSelectedFilter('hospital')}
-        >
-          {getServiceIcon('hospital', 'h-8 w-8')}
-          <span className="text-sm font-medium">
-            {t('hospital')} 🏥
-          </span>
-        </Button>
-        
-        <Button
-          variant={selectedFilter === 'pharmacy' ? 'default' : 'outline'}
-          size="lg"
-          className="h-20 flex-col space-y-2"
-          onClick={() => setSelectedFilter('pharmacy')}
-        >
-          {getServiceIcon('pharmacy', 'h-8 w-8')}
-          <span className="text-sm font-medium">
-            {t('pharmacy')} 💊
-          </span>
-        </Button>
-        
-        <Button
-          variant={selectedFilter === 'doctor' ? 'default' : 'outline'}
-          size="lg"
-          className="h-20 flex-col space-y-2"
-          onClick={() => setSelectedFilter('doctor')}
-        >
-          {getServiceIcon('doctor', 'h-8 w-8')}
-          <span className="text-sm font-medium">
-            {t('doctor')} 👨‍⚕️
-          </span>
-        </Button>
-        
-        <Button
-          variant={selectedFilter === 'clinic' ? 'default' : 'outline'}
-          size="lg"
-          className="h-20 flex-col space-y-2"
-          onClick={() => setSelectedFilter('clinic')}
-        >
-          {getServiceIcon('clinic', 'h-8 w-8')}
-          <span className="text-sm font-medium">
-            {t('clinic')} 🏥
-          </span>
-        </Button>
-      </div>
+      <ServiceCategories />
 
       {/* Search and Voice Navigation */}
       <Card>
@@ -512,8 +523,8 @@ const Map: React.FC<MapProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-base mb-1">{getServiceName(service)}</h3>
-                        <p className="text-sm text-muted-foreground">{getServiceAddress(service)}</p>
+                        <h3 className="font-semibold text-base mb-1">{getServiceName(selectedService)}</h3>
+                        <p className="text-sm text-muted-foreground">{getServiceAddress(selectedService)}</p>
                       </div>
                       <div className="flex items-center space-x-2 ml-4">
                         <Button

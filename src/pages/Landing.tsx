@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
@@ -12,11 +13,17 @@ import {
   Activity, 
   MapPin,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Building2,
+  Stethoscope
 } from "lucide-react";
 import heroImage from "@/assets/hero-telemedicine.jpg";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Landing = () => {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
+
   const services = [
     {
       icon: Video,
@@ -49,9 +56,32 @@ const Landing = () => {
     "Government healthcare integration"
   ];
 
+  const serviceCategories = [
+    {
+      icon: <Building2 className="h-12 w-12 text-red-500" />,
+      title: t('Clinics & Hospitals'),
+      titleHindi: 'अस्पताल',
+      titlePunjabi: 'ਹਸਪਤਾਲ',
+      path: '/clinics'
+    },
+    {
+      icon: <Pill className="h-12 w-12 text-blue-500" />,
+      title: t('Pharmacies'),
+      titleHindi: 'फार्मेसी',
+      titlePunjabi: 'ਫਾਰਮੇਸੀ',
+      path: '/pharmacies'
+    },
+    {
+      icon: <Stethoscope className="h-12 w-12 text-purple-500" />,
+      title: t('Doctors'),
+      titleHindi: 'डॉक्टर',
+      titlePunjabi: 'ਡਾਕਟਰ',
+      path: '/doctors'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <Navigation />
       
       {/* Hero Section */}
       <section className="relative overflow-hidden">
@@ -181,6 +211,38 @@ const Landing = () => {
                 </Button>
               </div>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Categories Section */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
+              Find Healthcare Services Near You
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Access medical services in your area
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {serviceCategories.map((category) => (
+              <Card 
+                key={category.path}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate(category.path)}
+              >
+                <CardContent className="p-6 text-center">
+                  {category.icon}
+                  <h2 className="text-xl font-semibold mt-4 mb-2">{category.title}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {category.titleHindi} / {category.titlePunjabi}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>

@@ -1,52 +1,61 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Landing from "./pages/Landing";
-import Dashboard from "./pages/Dashboard";
-import SymptomChecker from "./pages/SymptomChecker";
-import BookAppointment from "./pages/BookAppointment";
-import HealthRecords from "./pages/HealthRecords";
-import Medications from "./pages/Medications";
-import VideoConsultation from "./pages/VideoConsultation";
-import Pharmacies from "./pages/Pharmacies";
-import PatientMonitoring from "./pages/PatientMonitoring";
-import AdminDashboard from "./pages/AdminDashboard";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import HealthcareMap from "./pages/HealthcareMap";
-import NotFound from "./pages/NotFound";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navigation from './components/Navigation';
+import Map from './components/Map';
+import Landing from './pages/Landing';
+import Pharmacies from './pages/Pharmacies';
+import HealthRecords from './pages/HealthRecords';
+import VideoConsultation from './pages/VideoConsultation';
+import PatientMonitoring from './pages/PatientMonitoring';
+import NotFound from './pages/NotFound';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { Toaster } from './components/ui/toaster';
 
-const queryClient = new QueryClient();
+interface MapProps {
+  showNearbyServices?: boolean;
+  defaultFilter?: string;
+  // other props
+}
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+const App: React.FC = () => {
+  return (
     <LanguageProvider>
-      <TooltipProvider>
+      <Router>
+        <div className="min-h-screen bg-background">
+          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container p-4">
+              <Navigation />
+            </div>
+          </header>
+
+          <main className="container p-4">
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/healthcare-map" element={<Map />} />
+              <Route path="/pharmacies" element={<Pharmacies />} />
+              <Route path="/doctors" element={
+                <Map 
+                  showNearbyServices={true}
+                  defaultFilter="doctor"
+                />
+              } />
+              <Route path="/clinics" element={
+                <Map 
+                  showNearbyServices={true}
+                  defaultFilter="hospital"
+                />
+              } />
+              <Route path="/health-records" element={<HealthRecords />} />
+              <Route path="/video-consultation" element={<VideoConsultation />} />
+              <Route path="/monitoring" element={<PatientMonitoring />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+        </div>
         <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/symptom-checker" element={<SymptomChecker />} />
-            <Route path="/book-appointment" element={<BookAppointment />} />
-            <Route path="/health-records" element={<HealthRecords />} />
-            <Route path="/medications" element={<Medications />} />
-            <Route path="/video-consultation" element={<VideoConsultation />} />
-            <Route path="/pharmacies" element={<Pharmacies />} />
-            <Route path="/healthcare-map" element={<HealthcareMap />} />
-            <Route path="/monitoring" element={<PatientMonitoring />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      </Router>
     </LanguageProvider>
-  </QueryClientProvider>
-);
+  );
+};
 
 export default App;
