@@ -14,6 +14,7 @@ import Pharmacies from "./pages/Pharmacies";
 import PatientMonitoring from "./pages/PatientMonitoring";
 import AdminDashboard from "./pages/AdminDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import HealthcareMap from "./pages/HealthcareMap";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/medications" element={<Medications />} />
             <Route path="/video-consultation" element={<VideoConsultation />} />
             <Route path="/pharmacies" element={<Pharmacies />} />
+            <Route path="/healthcare-map" element={<HealthcareMap />} />
             <Route path="/monitoring" element={<PatientMonitoring />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
