@@ -23,14 +23,14 @@ const Navigation = () => {
             <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link to="/services" className="text-muted-foreground hover:text-primary transition-colors">
-              Services
+            <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+              Patient Portal
             </Link>
-            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
-              About
+            <Link to="/doctor-dashboard" className="text-muted-foreground hover:text-primary transition-colors">
+              Doctor Portal
             </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
-              Contact
+            <Link to="/admin" className="text-muted-foreground hover:text-primary transition-colors">
+              Admin Panel
             </Link>
             
             <div className="flex items-center space-x-3">
@@ -41,11 +41,6 @@ const Navigation = () => {
               <Link to="/login">
                 <Button variant="outline" size="sm" className="h-9">
                   Login
-                </Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button variant="default" size="sm" className="h-9">
-                  Dashboard
                 </Button>
               </Link>
             </div>
@@ -73,22 +68,22 @@ const Navigation = () => {
                 Home
               </Link>
               <Link
-                to="/services"
+                to="/dashboard"
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
               >
-                Services
+                Patient Portal
               </Link>
               <Link
-                to="/about"
+                to="/doctor-dashboard"
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
               >
-                About
+                Doctor Portal
               </Link>
               <Link
-                to="/contact"
+                to="/admin"
                 className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors"
               >
-                Contact
+                Admin Panel
               </Link>
               <div className="px-3 py-2 space-y-2">
                 <Button variant="outline" size="sm" className="w-full">
@@ -98,11 +93,6 @@ const Navigation = () => {
                 <Link to="/login" className="block">
                   <Button variant="outline" size="sm" className="w-full">
                     Login
-                  </Button>
-                </Link>
-                <Link to="/dashboard" className="block">
-                  <Button variant="default" size="sm" className="w-full">
-                    Dashboard
                   </Button>
                 </Link>
               </div>

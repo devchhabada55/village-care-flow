@@ -13,6 +13,7 @@ import VideoConsultation from "./pages/VideoConsultation";
 import Pharmacies from "./pages/Pharmacies";
 import PatientMonitoring from "./pages/PatientMonitoring";
 import AdminDashboard from "./pages/AdminDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/pharmacies" element={<Pharmacies />} />
             <Route path="/monitoring" element={<PatientMonitoring />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
